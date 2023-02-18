@@ -62,8 +62,8 @@ function removeInfos(){
     });
 }
 
-function updateInfos(sourceDict, cardsURL){
-    if (window.location.href == cardsURL) {
+function updateCardsDict(){
+    if (window.location.href == "https://marvelsnapzone.com/cards/") {
         console.log("SZ+ | Collecting cards infos.");
         let cardsDict = {};
         for (let card of document.querySelectorAll('[data-ability]')) {
@@ -71,6 +71,22 @@ function updateInfos(sourceDict, cardsURL){
         }
         window.localStorage.setItem("cardsDict", JSON.stringify(cardsDict));
     }
+}
+function updateCollection(){
+    if (window.location.href == "https://marvelsnapzone.com/collection/") {
+        console.log("SZ+ | Collecting collection infos.");
+        let collection = [];
+        for (let card of document.querySelectorAll('[data-ability]')) {
+            if(card.classList.contains("collected")){
+                collection.push(parseInt(card.dataset.cid));
+            }
+        }
+        window.localStorage.setItem("collection", JSON.stringify(collection));
+    }
+}
+
+
+function updateInfos(sourceDict){
     let cardsDict = JSON.parse(window.localStorage.getItem("cardsDict"));
     let collection = JSON.parse(window.localStorage.getItem("collection"));
     console.log("SZ+ | Start showing infos.");
@@ -125,7 +141,6 @@ function updateInfos(sourceDict, cardsURL){
         }
     }
     console.log("SZ+ | All infos shown.");
-
 }
 
 
@@ -143,19 +158,30 @@ function updateInfos(sourceDict, cardsURL){
         "Season Pass": "S",
         "Not Available": "✖",
     };
+    console.log("SZ+ | Script start.");
     let cardsURL = "https://marvelsnapzone.com/cards/";
     if (window.localStorage.cardsDict === undefined && window.location.href != cardsURL) {
         window.location.href = cardsURL;
     }
     window.addEventListener('load', (event) => {
-        updateInfos(sourceDict, cardsURL);
+        updateInfos(sourceDict);
         var btn = document.createElement('button');
         btn.classList.add('refresh_button');
-        btn.textContent = "↻ SnapZone +";
+        btn.textContent = "↻ SZ +";
         btn.addEventListener('click', function(){
-            removeInfos();
-           updateInfos(sourceDict, cardsURL);
+           removeInfos();
+           updateInfos(sourceDict);
         });
-        document.querySelectorAll('#header-menu-2')[0].parentElement.appendChild(btn);
+
+        var btn2 = document.createElement('button');
+        btn2.classList.add('refresh_button');
+        btn2.textContent = "↻ Cards";
+        btn2.addEventListener('click', function(){
+            updateCardsDict();
+            updateCollection();            
+        });
+        var end_items = document.querySelector("#header .ct-container-fluid [data-column=end] [data-items=primary]");
+        end_items.insertBefore(btn2, end_items.firstChild);
+        end_items.insertBefore(btn, btn2);
     });
 })();
